@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>贵州景点图片批量下载</title>
+<style>
+body { font-family: Arial, sans-serif; max-width: 900px; margin: 40px auto; padding: 20px; }
+h1 { color: #1c2333; }
+.info { background: #f0f8ff; padding: 15px; border-radius: 8px; margin: 20px 0; }
+.spot { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+.spot-name { width: 150px; font-weight: bold; }
+.spot a { color: #4a9e8e; margin-right: 15px; text-decoration: none; }
+.spot a:hover { text-decoration: underline; }
+.btn { background: #4a9e8e; color: white; padding: 10px 20px; border: none; border-radius: 5px;
+       cursor: pointer; font-size: 16px; margin: 5px; }
+.btn:hover { background: #3d8573; }
+#log { background: #f5f5f5; padding: 15px; border-radius: 8px; margin-top: 20px; max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<h1>贵州景点图片批量下载工具</h1>
+
+<div class="info">
+<p><strong>使用方法：</strong></p>
+<ol>
+<li>点击下方链接，在新窗口打开百度图片搜索</li>
+<li>找到合适的图片，右键 → 另存为 → 保存到 <code>static/images/attractions/</code> 目录</li>
+<li>文件名改为对应景点名（如 <code>黄果树瀑布.jpg</code>）</li>
+<li>或者用下方"自动搜索"按钮快速跳转</li>
+</ol>
+</div>
+
+<div>
+<button class="btn" onclick="downloadAll()">一键打开所有搜索页</button>
+<button class="btn" onclick="clearLog()">清除日志</button>
+</div>
+
+<div id="spots"></div>
+<div id="log"></div>
+
+<script>
+const SPOTS = [
+    "黄果树瀑布", "梵净山", "荔波小七孔", "西江千户苗寨", "镇远古镇",
+    "遵义会议会址", "青岩古镇", "织金洞", "马岭河峡谷", "万峰林",
+    "赤水大瀑布", "百里杜鹃", "威宁草海", "肇兴侗寨", "平塘天眼",
+    "黔灵山公园", "花溪湿地公园", "天河潭", "南江大峡谷", "海龙屯",
+    "加榜梯田", "下司古镇", "朗德苗寨", "岜沙苗寨", "隆里古城",
+    "甲秀楼", "龙宫", "茅台镇", "韭菜坪", "平坝樱花",
+    "荔波大七孔", "镇远舞阳河", "赤水丹霞", "燕子岩国家森林公园",
+    "石阡温泉", "妥乐古银杏村", "万峰湖", "铜仁大峡谷", "施秉云台山",
+    "晴隆二十四道拐", "湄潭茶海", "乌蒙大草原", "花江大峡谷", "格凸河",
+    "旧州古镇", "大同古镇", "丙安古镇", "土城古镇", "天龙屯堡",
+    "凯里民族博物馆", "遵义古城", "遵义红军山", "贵阳文昌阁",
+    "六盘水梅花山", "六盘水野玉海", "龙里大草原", "北盘江大桥",
+    "三宝侗寨", "堂安侗寨", "小黄侗寨", "大利侗寨", "黄岗侗寨",
+    "高坡苗乡", "鲍家屯", "本寨", "云山屯",
+    "思南温泉", "息烽集中营纪念馆", "黔南平塘天眼",
+    "安龙招堤", "双乳峰", "铜仁梵净山佛教文化苑", "铜仁苗王城",
+    "贵阳森林公园", "贵阳阳明祠", "惠水好花红",
+];
+
+const container = document.getElementById('spots');
+const log = document.getElementById('log');
+
+function addLog(msg) {
+    log.innerHTML += msg + '<br>';
+    log.scrollTop = log.scrollHeight;
+}
+
+function clearLog() { log.innerHTML = ''; }
+
+function searchURL(name) {
+    return `https://image.baidu.com/index.php?tn=baiduimage&word=贵州+${encodeURIComponent(name)}+风景`;
+}
+
+function downloadAll() {
+    let i = 0;
+    function openNext() {
+        if (i >= SPOTS.length) {
+            addLog('全部打开完成！');
+            return;
+        }
+        window.open(searchURL(SPOTS[i]), '_blank');
+        addLog(`[${i+1}/${SPOTS.length}] 打开: ${SPOTS[i]}`);
+        i++;
+        setTimeout(openNext, 800);
+    }
+    openNext();
+}
+
+// 渲染列表
+SPOTS.forEach((name, idx) => {
+    const div = document.createElement('div');
+    div.className = 'spot';
+    div.innerHTML = `
+        <span class="spot-name">${name}</span>
+        <a href="${searchURL(name)}" target="_blank">百度图片搜索</a>
+    `;
+    container.appendChild(div);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}管理后台{% endblock %} - 贵州旅游助手</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/design-tokens.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    {% block head_extra %}{% endblock %}
+</head>
+<body data-theme="explore">
+<div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <div class="admin-sidebar-logo">🌄</div>
+            <div>
+                <div class="admin-sidebar-title">管理后台</div>
+                <div class="admin-sidebar-sub">贵州旅游助手</div>
+            </div>
+        </div>
+        <nav class="admin-nav">
+            <a href="/admin/" class="admin-nav-item {% if request.path == '/admin/' %}active{% endif %}">
+                <span class="admin-nav-item-icon">📊</span> 仪表盘
+            </a>
+            <a href="/admin/attractions" class="admin-nav-item {% if 'attractions' in request.path %}active{% endif %}">
+                <span class="admin-nav-item-icon">🏔️</span> 景点管理
+            </a>
+            <a href="/admin/routes" class="admin-nav-item {% if 'routes' in request.path %}active{% endif %}">
+                <span class="admin-nav-item-icon">🗺️</span> 路线管理
+            </a>
+            <a href="/" class="admin-nav-item" target="_blank">
+                <span class="admin-nav-item-icon">🌐</span> 前台首页
+            </a>
+        </nav>
+        <div class="admin-sidebar-footer">
+            <div class="admin-user">
+                <div class="admin-user-avatar">A</div>
+                <div>
+                    <div style="font-weight:600;">管理员</div>
+                    <a href="/admin/logout" style="font-size:12px;color:var(--text-muted);text-decoration:none;">退出登录</a>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main">
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

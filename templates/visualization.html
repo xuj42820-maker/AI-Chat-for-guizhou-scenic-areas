@@ -1,0 +1,475 @@
+{% extends "base.html" %}
+
+{% block title %}数据可视化 - 贵州旅游景点智能问答助手{% endblock %}
+{% block nav_active_viz %}active{% endblock %}
+
+{% block head_extra %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="viz-header" data-animation="fadeInUp">
+    <h1 class="text-3xl font-bold">📊 贵州旅游景点数据分析</h1>
+    <p class="viz-header-sub text-base text-secondary">基于多源数据整合的贵州旅游景点深度分析，涵盖117个景点，为旅行决策提供全面数据支持</p>
+</div>
+
+<!-- Stats -->
+<div class="viz-stats" id="vizStats" data-stagger>
+    <div class="viz-stat-card card card-flat">
+        <div class="viz-stat-icon">📍</div>
+        <div class="viz-stat-value text-2xl font-bold" id="stat-total">117</div>
+        <div class="viz-stat-label text-sm text-muted">景点总数</div>
+    </div>
+    <div class="viz-stat-card card card-flat">
+        <div class="viz-stat-icon">🎫</div>
+        <div class="viz-stat-value text-2xl font-bold" id="stat-free">-</div>
+        <div class="viz-stat-label text-sm text-muted">免费景点</div>
+    </div>
+    <div class="viz-stat-card card card-flat">
+        <div class="viz-stat-icon">⭐</div>
+        <div class="viz-stat-value text-2xl font-bold" id="stat-rating">-</div>
+        <div class="viz-stat-label text-sm text-muted">平均评分</div>
+    </div>
+    <div class="viz-stat-card card card-flat">
+        <div class="viz-stat-icon">📞</div>
+        <div class="viz-stat-value text-2xl font-bold" id="stat-phone">29</div>
+        <div class="viz-stat-label text-sm text-muted">有电话信息</div>
+    </div>
+    <div class="viz-stat-card card card-flat">
+        <div class="viz-stat-icon">🌐</div>
+        <div class="viz-stat-value text-2xl font-bold" id="stat-web">10</div>
+        <div class="viz-stat-label text-sm text-muted">有官网信息</div>
+    </div>
+    <div class="viz-stat-card card card-flat">
+        <div class="viz-stat-icon">🗺️</div>
+        <div class="viz-stat-value text-2xl font-bold" id="stat-region">9</div>
+        <div class="viz-stat-label text-sm text-muted">覆盖市州</div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="viz-charts" data-stagger>
+    <div class="viz-chart-card card">
+        <div class="viz-chart-title text-lg font-semibold">📊 景点类型分布</div>
+        <div class="viz-chart-sub text-sm text-muted">按景点类别统计</div>
+        <div id="categoryChart" class="chart-box"></div>
+    </div>
+
+    <div class="viz-chart-card card">
+        <div class="viz-chart-title text-lg font-semibold">🗺️ 各地区景点分布</div>
+        <div class="viz-chart-sub text-sm text-muted">贵州9市州景点数量</div>
+        <div id="regionChart" class="chart-box"></div>
+    </div>
+
+    <div class="viz-chart-card card">
+        <div class="viz-chart-title text-lg font-semibold">💰 门票价格分布</div>
+        <div class="viz-chart-sub text-sm text-muted">各价格区间景点数量</div>
+        <div id="priceChart" class="chart-box"></div>
+    </div>
+
+    <div class="viz-chart-card card span-2">
+        <div class="viz-chart-title text-lg font-semibold">📅 最佳旅游季节分析</div>
+        <div class="viz-chart-sub text-sm text-muted">每月适宜游玩的景点数量</div>
+        <div id="seasonChart" class="chart-box tall"></div>
+    </div>
+
+    <div class="viz-chart-card card">
+        <div class="viz-chart-title text-lg font-semibold">⏱️ 建议游玩时长</div>
+        <div class="viz-chart-sub text-sm text-muted">景点游玩时间分布</div>
+        <div id="durationChart" class="chart-box"></div>
+    </div>
+
+    <div class="viz-chart-card card span-2">
+        <div class="viz-chart-title text-lg font-semibold">🏆 贵州景点评分排行榜</div>
+        <div class="viz-chart-sub text-sm text-muted">Top 15 高评分景点</div>
+        <div id="topChart" class="chart-box tall"></div>
+    </div>
+
+    <div class="viz-chart-card card">
+        <div class="viz-chart-title text-lg font-semibold">🍜 贵州美食地图</div>
+        <div class="viz-chart-sub text-sm text-muted">各地特色美食推荐</div>
+        <div id="foodChart" class="chart-box"></div>
+    </div>
+
+    <div class="viz-chart-card card">
+        <div class="viz-chart-title text-lg font-semibold">🏨 住宿推荐</div>
+        <div class="viz-chart-sub text-sm text-muted">各类型住宿分布</div>
+        <div id="hotelChart" class="chart-box"></div>
+    </div>
+</div>
+
+<!-- Insights -->
+<div class="viz-insights" data-animation="fadeInUp">
+    <h2 class="viz-insights-title text-2xl font-bold">💡 数据洞察与旅行建议</h2>
+    <div class="viz-insights-grid" data-stagger>
+        <div class="viz-insight-card card">
+            <div class="viz-insight-header">
+                <div class="viz-insight-icon">🎯</div>
+                <div class="viz-insight-label text-base font-semibold">核心发现</div>
+            </div>
+            <div class="viz-insight-text text-sm text-secondary leading-relaxed">
+                贵州景点以<strong class="text-primary">人文景观(54个)</strong>和<strong class="text-primary">自然风光(52个)</strong>为主，
+                民族文化底蕴深厚。<em>黔东南</em>是民族村寨最集中的地区，
+                拥有<strong class="text-primary">35个景点</strong>。
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:var(--space-1-5);margin-top:var(--space-3);">
+                <span class="tag tag-primary">苗族文化</span>
+                <span class="tag tag-primary">侗族大歌</span>
+                <span class="tag tag-primary">喀斯特地貌</span>
+            </div>
+        </div>
+
+        <div class="viz-insight-card card">
+            <div class="viz-insight-header">
+                <div class="viz-insight-icon">🌟</div>
+                <div class="viz-insight-label text-base font-semibold">旅行建议</div>
+            </div>
+            <div class="viz-insight-text text-sm text-secondary leading-relaxed">
+                <strong class="text-primary">53%</strong>的景点免费开放，性价比极高。
+                推荐季节：<em>4-10月</em>，气候宜人。
+                必游：<strong class="text-primary">黄果树瀑布、梵净山、西江苗寨</strong>。
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:var(--space-1-5);margin-top:var(--space-3);">
+                <span class="tag tag-success">高性价比</span>
+                <span class="tag tag-accent">4-10月最佳</span>
+                <span class="tag tag-primary">必游TOP3</span>
+            </div>
+        </div>
+
+        <div class="viz-insight-card card">
+            <div class="viz-insight-header">
+                <div class="viz-insight-icon">📞</div>
+                <div class="viz-insight-label text-base font-semibold">数据丰富</div>
+            </div>
+            <div class="viz-insight-text text-sm text-secondary leading-relaxed">
+                <strong class="text-primary">29个</strong>景点有联系电话，
+                <strong class="text-primary">10个</strong>有官方网站。
+                <em>建议提前电话确认</em>开放时间和门票信息。
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:var(--space-1-5);margin-top:var(--space-3);">
+                <span class="tag tag-outline">电话预约</span>
+                <span class="tag tag-outline">官网查询</span>
+                <span class="tag tag-outline">提前确认</span>
+            </div>
+        </div>
+
+        <div class="viz-insight-card card">
+            <div class="viz-insight-header">
+                <div class="viz-insight-icon">🍜</div>
+                <div class="viz-insight-label text-base font-semibold">美食推荐</div>
+            </div>
+            <div class="viz-insight-text text-sm text-secondary leading-relaxed">
+                必尝美食：<strong class="text-primary">酸汤鱼、丝娃娃、肠旺面</strong>
+                特色体验：<em>苗族长桌宴、侗族大歌</em>
+                推荐餐厅：<strong class="text-primary">老凯俚酸汤鱼、杨姨妈丝娃娃</strong>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:var(--space-1-5);margin-top:var(--space-3);">
+                <span class="tag tag-accent">酸汤鱼</span>
+                <span class="tag tag-accent">丝娃娃</span>
+                <span class="tag tag-accent">长桌宴</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_script %}
+<script>
+let attractionsData = [];
+
+// Theme-aware chart colors
+function getChartTheme() {
+    const cs = getComputedStyle(document.documentElement);
+    return {
+        textColor: cs.getPropertyValue('--text-secondary').trim() || '#9aa0a6',
+        mutedColor: cs.getPropertyValue('--text-muted').trim() || '#5f6368',
+        borderColor: cs.getPropertyValue('--border-subtle').trim() || 'rgba(255,255,255,0.06)',
+        surfaceColor: cs.getPropertyValue('--bg-surface').trim() || '#1c2333',
+        primary: cs.getPropertyValue('--primary').trim() || '#4a9e8e',
+        primaryLight: cs.getPropertyValue('--primary-light').trim() || '#6bc4b4',
+        accent: cs.getPropertyValue('--accent').trim() || '#8b5cf6',
+        accentWarm: cs.getPropertyValue('--accent-warm').trim() || '#FAAD14',
+        success: '#34d399',
+        warning: '#fbbf24',
+        error: '#f87171',
+    };
+}
+
+const categories = {
+    '自然风光': '#4a9e8e',
+    '人文景观': '#c49b5c',
+    '红色旅游': '#ef4444',
+    '美食体验': '#f97316',
+    '特色体验': '#8b5cf6',
+    '休闲娱乐': '#06b6d4'
+};
+
+function globalChartOpts() {
+    const t = getChartTheme();
+    return {
+        backgroundColor: 'transparent',
+        textStyle: { fontFamily: 'Inter, sans-serif', color: t.textColor },
+        tooltip: {
+            backgroundColor: t.surfaceColor,
+            borderColor: t.borderColor,
+            textStyle: { color: t.textColor },
+            extraCssText: 'backdrop-filter:blur(10px);box-shadow:0 8px 24px rgba(0,0,0,0.3);border-radius:12px;'
+        }
+    };
+}
+
+fetch('/api/attractions')
+    .then(r => r.json())
+    .then(data => {
+        attractionsData = data;
+        updateStats(data);
+        initAllCharts(data);
+    })
+    .catch(err => console.error('加载数据失败:', err));
+
+function updateStats(data) {
+    const freeCount = data.filter(a => a.ticket_price && a.ticket_price.includes('免费')).length;
+    document.getElementById('stat-total').textContent = data.length;
+    document.getElementById('stat-free').textContent = freeCount;
+
+    const ratings = data.filter(a => a.rating).map(a => a.rating);
+    const avgRating = (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(2);
+    document.getElementById('stat-rating').textContent = avgRating;
+}
+
+function initAllCharts(data) {
+    initCategoryChart(data);
+    initRegionChart(data);
+    initPriceChart(data);
+    initSeasonChart(data);
+    initDurationChart(data);
+    initTopChart(data);
+    initFoodChart();
+    initHotelChart();
+
+    window.addEventListener('resize', () => {
+        document.querySelectorAll('.chart-box').forEach(el => {
+            const chart = echarts.getInstanceByDom(el);
+            if (chart) chart.resize();
+        });
+    });
+}
+
+function initCategoryChart(data) {
+    const t = getChartTheme();
+    const chart = echarts.init(document.getElementById('categoryChart'));
+    const catData = {};
+    data.forEach(i => { const c = i.category || '其他'; catData[c] = (catData[c] || 0) + 1; });
+
+    chart.setOption({
+        ...globalChartOpts(),
+        tooltip: { ...globalChartOpts().tooltip, trigger: 'item', formatter: p => `<div style="font-weight:600;margin-bottom:4px">${p.name}</div><div style="color:${t.textColor}">${p.value}个景点 · ${p.percent}%</div>` },
+        legend: { orient: 'vertical', right: '5%', top: 'center', itemGap: 12, textStyle: { color: t.textColor, fontSize: 12 }, itemWidth: 12, itemHeight: 12, icon: 'circle' },
+        series: [{
+            type: 'pie', radius: ['50%', '78%'], center: ['35%', '50%'],
+            itemStyle: { borderRadius: 6, borderColor: t.surfaceColor, borderWidth: 3 },
+            label: { show: false },
+            emphasis: { label: { show: true, fontSize: 14, fontWeight: 600, color: t.textColor } },
+            data: Object.entries(catData).map(([name, value]) => ({ name, value, itemStyle: { color: categories[name] || '#667eea' } })).sort((a, b) => b.value - a.value),
+            animationType: 'scale', animationEasing: 'elasticOut'
+        }]
+    });
+}
+
+function initRegionChart(data) {
+    const t = getChartTheme();
+    const chart = echarts.init(document.getElementById('regionChart'));
+    const regionData = {};
+    data.forEach(i => {
+        const addr = i.address || '';
+        let region = '其他';
+        const map = { '贵阳': '贵阳', '遵义': '遵义', '安顺': '安顺', '黔东南': '黔东南', '黔南': '黔南', '黔西南': '黔西南', '铜仁': '铜仁', '毕节': '毕节', '六盘水': '六盘水' };
+        for (const [k, v] of Object.entries(map)) { if (addr.includes(k)) { region = v; break; } }
+        regionData[region] = (regionData[region] || 0) + 1;
+    });
+    const sorted = Object.entries(regionData).sort((a, b) => b[1] - a[1]);
+
+    chart.setOption({
+        ...globalChartOpts(),
+        tooltip: { ...globalChartOpts().tooltip, trigger: 'axis', axisPointer: { type: 'shadow' } },
+        grid: { left: '18%', right: '12%', bottom: '10%', top: '5%' },
+        xAxis: { type: 'value', axisLabel: { color: t.mutedColor }, splitLine: { lineStyle: { color: t.borderColor } }, axisLine: { show: false } },
+        yAxis: { type: 'category', data: sorted.map(i => i[0]), axisLabel: { color: t.textColor, fontSize: 12 }, axisLine: { show: false }, axisTick: { show: false } },
+        series: [{
+            type: 'bar', barWidth: 22,
+            data: sorted.map((item, idx) => ({
+                value: item[1],
+                itemStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                        { offset: 0, color: idx === 0 ? t.primary : idx < 3 ? t.primaryLight : t.primary },
+                        { offset: 1, color: idx === 0 ? t.accentWarm : idx < 3 ? t.accentWarm : t.accentWarm }
+                    ]),
+                    borderRadius: [0, 4, 4, 0]
+                }
+            })),
+            label: { show: true, position: 'right', formatter: '{c}个', color: t.textColor, fontSize: 11 }
+        }]
+    });
+}
+
+function initPriceChart(data) {
+    const t = getChartTheme();
+    const chart = echarts.init(document.getElementById('priceChart'));
+    const priceData = { '免费': 0, '50元以下': 0, '50-100元': 0, '100-150元': 0, '150元以上': 0 };
+    data.forEach(i => {
+        const p = i.ticket_price || '';
+        if (p.includes('免费') || p.includes('免票')) priceData['免费']++;
+        else { const n = parseInt(p); if (isNaN(n) || n < 50) priceData['50元以下']++; else if (n < 100) priceData['50-100元']++; else if (n < 150) priceData['100-150元']++; else priceData['150元以上']++; }
+    });
+
+    chart.setOption({
+        ...globalChartOpts(),
+        tooltip: { ...globalChartOpts().tooltip, trigger: 'item', formatter: p => `<div style="font-weight:600;margin-bottom:4px">${p.name}</div><div style="color:${t.textColor}">${p.value}个景点 · ${p.percent}%</div>` },
+        series: [{
+            type: 'pie', radius: '72%',
+            data: Object.entries(priceData).map(([name, value]) => ({
+                name, value,
+                itemStyle: { color: { '免费': '#34d399', '50元以下': t.primary, '50-100元': t.accentWarm, '100-150元': '#e0b97a', '150元以上': '#ef4444' }[name] }
+            })),
+            label: { formatter: '{b}\n{c}个', color: t.textColor, fontSize: 11 },
+            itemStyle: { borderRadius: 6, borderColor: t.surfaceColor, borderWidth: 3 },
+            animationType: 'scale', animationEasing: 'elasticOut'
+        }]
+    });
+}
+
+function initSeasonChart(data) {
+    const t = getChartTheme();
+    const chart = echarts.init(document.getElementById('seasonChart'));
+    const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    const seasonData = new Array(12).fill(0);
+    data.forEach(i => {
+        const s = i.best_season || '全年';
+        if (s === '全年') { seasonData.forEach((_, idx) => seasonData[idx]++); }
+        else { s.split(',').forEach(range => { const m = range.match(/(\d+)-(\d+)月/); if (m) { for (let k = parseInt(m[1]); k <= parseInt(m[2]); k++) seasonData[k - 1]++; } }); }
+    });
+
+    const getColor = m => m >= 3 && m <= 5 ? t.primary : m >= 6 && m <= 8 ? t.accentWarm : m >= 9 && m <= 11 ? '#e0b97a' : t.accent;
+
+    chart.setOption({
+        ...globalChartOpts(),
+        tooltip: { ...globalChartOpts().tooltip, trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: p => { const s = p[0].dataIndex >= 2 && p[0].dataIndex <= 4 ? '春季' : p[0].dataIndex >= 5 && p[0].dataIndex <= 7 ? '夏季' : p[0].dataIndex >= 8 && p[0].dataIndex <= 10 ? '秋季' : '冬季'; return `<div style="font-weight:600">${p[0].name} (${s})</div><div style="color:${t.textColor}">${p[0].value}个景点适宜游玩</div>`; } },
+        grid: { left: '8%', right: '5%', bottom: '15%', top: '8%' },
+        xAxis: { type: 'category', data: months, axisLabel: { color: t.mutedColor, rotate: 45 }, axisLine: { lineStyle: { color: t.borderColor } }, axisTick: { show: false } },
+        yAxis: { type: 'value', axisLabel: { color: t.mutedColor }, splitLine: { lineStyle: { color: t.borderColor } }, axisLine: { show: false } },
+        series: [{
+            type: 'bar', barWidth: 36,
+            data: seasonData.map((v, idx) => ({ value: v, itemStyle: { color: getColor(idx + 1), borderRadius: [6, 6, 0, 0] } })),
+            label: { show: true, position: 'top', formatter: '{c}', color: t.mutedColor, fontSize: 11 }
+        }]
+    });
+}
+
+function initDurationChart(data) {
+    const t = getChartTheme();
+    const chart = echarts.init(document.getElementById('durationChart'));
+    const dd = { '半天': 0, '1天': 0, '1天以上': 0, '2-3小时': 0, '其他': 0 };
+    data.forEach(i => {
+        const d = i.suggested_duration || '';
+        if (d.includes('半天')) dd['半天']++;
+        else if (d.includes('1天') && !d.includes('以上')) dd['1天']++;
+        else if (d.includes('1天以上') || d.includes('2天')) dd['1天以上']++;
+        else if (d.includes('小时')) dd['2-3小时']++;
+        else dd['其他']++;
+    });
+
+    chart.setOption({
+        ...globalChartOpts(),
+        tooltip: { ...globalChartOpts().tooltip, trigger: 'item', formatter: p => `<div style="font-weight:600;margin-bottom:4px">${p.name}</div><div style="color:${t.textColor}">${p.value}个景点 · ${p.percent}%</div>` },
+        series: [{
+            type: 'pie', radius: '65%',
+            data: [
+                { value: dd['半天'], name: '半天', itemStyle: { color: t.primary } },
+                { value: dd['1天'], name: '1天', itemStyle: { color: t.accentWarm } },
+                { value: dd['1天以上'], name: '1天以上', itemStyle: { color: t.accent } },
+                { value: dd['2-3小时'], name: '2-3小时', itemStyle: { color: '#34d399' } },
+                { value: dd['其他'], name: '其他', itemStyle: { color: t.mutedColor } }
+            ],
+            label: { formatter: '{b}\n{c}个', color: t.textColor, fontSize: 11 },
+            itemStyle: { borderRadius: 6, borderColor: t.surfaceColor, borderWidth: 3 },
+            animationType: 'scale', animationEasing: 'elasticOut'
+        }]
+    });
+}
+
+function initTopChart(data) {
+    const t = getChartTheme();
+    const chart = echarts.init(document.getElementById('topChart'));
+    const top15 = data.filter(i => i.rating).sort((a, b) => b.rating - a.rating).slice(0, 15);
+
+    chart.setOption({
+        ...globalChartOpts(),
+        tooltip: { ...globalChartOpts().tooltip, trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: p => { const i = top15[p[0].dataIndex]; return `<div style="font-weight:600;margin-bottom:8px">${i.name}</div><div style="color:${t.textColor};line-height:1.8">评分: <span style="color:${t.accentWarm}">${i.rating}分</span><br/>类型: ${i.category}<br/>门票: ${i.ticket_price}<br/>地区: ${i.address}</div>`; } },
+        grid: { left: '18%', right: '10%', bottom: '8%', top: '5%' },
+        xAxis: { type: 'value', min: 4.0, max: 5.0, axisLabel: { color: t.mutedColor, formatter: '{value}分' }, splitLine: { lineStyle: { color: t.borderColor } }, axisLine: { show: false } },
+        yAxis: { type: 'category', data: top15.map(i => i.name), axisLabel: { color: t.textColor, fontSize: 12, width: 120, overflow: 'truncate' }, axisLine: { show: false }, axisTick: { show: false } },
+        series: [{
+            type: 'bar', barWidth: 22,
+            data: top15.map((item, idx) => ({
+                value: item.rating,
+                itemStyle: { color: idx === 0 ? t.accentWarm : idx < 3 ? '#e0b97a' : idx < 6 ? t.primary : t.primaryLight, borderRadius: [0, 6, 6, 0] }
+            })),
+            label: { show: true, position: 'right', formatter: '{c}分', color: t.accentWarm, fontSize: 12, fontWeight: 600 }
+        }]
+    });
+}
+
+function initFoodChart() {
+    const t = getChartTheme();
+    const chart = echarts.init(document.getElementById('foodChart'));
+    const foodData = [
+        { city: '贵阳', foods: ['酸汤鱼', '丝娃娃', '肠旺面', '豆腐圆子'], count: 4 },
+        { city: '遵义', foods: ['羊肉粉', '豆花面', '米皮', '鸡蛋糕'], count: 4 },
+        { city: '安顺', foods: ['裹卷', '破酥包', '味噌鸡', '屯堡辣子鸡'], count: 4 },
+        { city: '凯里', foods: ['酸汤鱼', '苗家米酒', '长桌宴', '苗族酸汤'], count: 4 },
+        { city: '黔东南', foods: ['侗族腌鱼', '苗族酸汤', '糯米酒', '打油茶'], count: 4 },
+        { city: '六盘水', foods: ['烙锅', '羊肉粉', '荞凉粉', '水城羊肉'], count: 4 }
+    ];
+
+    chart.setOption({
+        ...globalChartOpts(),
+        tooltip: { ...globalChartOpts().tooltip, trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: p => { const i = foodData[p[0].dataIndex]; return `<div style="font-weight:600;margin-bottom:8px">${i.city}美食</div><div style="color:${t.textColor};line-height:1.8">${i.foods.join('<br/>')}</div>`; } },
+        grid: { left: '15%', right: '10%', bottom: '10%', top: '5%' },
+        xAxis: { type: 'value', axisLabel: { color: t.mutedColor }, splitLine: { lineStyle: { color: t.borderColor } }, axisLine: { show: false } },
+        yAxis: { type: 'category', data: foodData.map(i => i.city), axisLabel: { color: t.textColor, fontSize: 12 }, axisLine: { show: false }, axisTick: { show: false } },
+        series: [{
+            type: 'bar', barWidth: 24,
+            data: foodData.map((item, idx) => ({
+                value: item.count,
+                itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: '#f97316' }, { offset: 1, color: '#fb923c' }]), borderRadius: [0, 4, 4, 0] }
+            })),
+            label: { show: true, position: 'right', formatter: '{c}道', color: t.textColor, fontSize: 11 }
+        }]
+    });
+}
+
+function initHotelChart() {
+    const t = getChartTheme();
+    const chart = echarts.init(document.getElementById('hotelChart'));
+
+    chart.setOption({
+        ...globalChartOpts(),
+        tooltip: { ...globalChartOpts().tooltip, trigger: 'item', formatter: p => `<div style="font-weight:600;margin-bottom:4px">${p.name}</div><div style="color:${t.textColor}">${p.value}% 景点有此类住宿</div>` },
+        series: [{
+            type: 'pie', radius: '65%',
+            data: [
+                { value: 35, name: '酒店', itemStyle: { color: t.primary } },
+                { value: 25, name: '民宿客栈', itemStyle: { color: t.accentWarm } },
+                { value: 20, name: '特色吊脚楼', itemStyle: { color: t.accent } },
+                { value: 15, name: '农家乐', itemStyle: { color: '#34d399' } },
+                { value: 5, name: '露营', itemStyle: { color: '#f97316' } }
+            ],
+            label: { formatter: '{b}\n{d}%', color: t.textColor, fontSize: 11 },
+            itemStyle: { borderRadius: 6, borderColor: t.surfaceColor, borderWidth: 3 },
+            animationType: 'scale', animationEasing: 'elasticOut'
+        }]
+    });
+}
+</script>
+{% endblock %}

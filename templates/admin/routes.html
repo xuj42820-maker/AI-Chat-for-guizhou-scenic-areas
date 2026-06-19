@@ -1,0 +1,173 @@
+{% extends "admin/base.html" %}
+{% block title %}路线管理{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div>
+        <div class="admin-page-title">🗺️ 路线管理</div>
+        <div class="admin-breadcrumb"><a href="/admin/">首页</a> / 路线管理</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal()">+ 添加路线</button>
+</div>
+
+<div class="table-card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>路线名称</th>
+                <th>类型</th>
+                <th>时长</th>
+                <th>难度</th>
+                <th>预算</th>
+                <th>景点</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+    <div class="table-footer">
+        <span id="countInfo">加载中...</span>
+    </div>
+</div>
+
+<!-- 编辑模态框 -->
+<div class="admin-modal-overlay" id="modalOverlay">
+    <div class="admin-modal">
+        <div class="admin-modal-header">
+            <div class="admin-modal-title" id="modalTitle">添加路线</div>
+            <button class="btn btn-ghost btn-icon btn-sm" onclick="closeModal()">✕</button>
+        </div>
+        <div class="admin-modal-body">
+            <input type="hidden" id="editId">
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label class="form-label">路线名称 *</label>
+                    <input type="text" class="form-input" id="fName" placeholder="如：贵州经典3日游">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">类型</label>
+                    <select class="form-input" id="fType">
+                        <option>经典</option><option>民族</option><option>自然</option>
+                        <option>红色</option><option>探险</option><option>休闲</option>
+                        <option>养生</option><option>美食</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">时长</label>
+                    <input type="text" class="form-input" id="fDuration" placeholder="3天2晚">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">难度</label>
+                    <select class="form-input" id="fDifficulty">
+                        <option>简单</option><option>中等</option><option>困难</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">最佳季节</label>
+                    <input type="text" class="form-input" id="fSeason" placeholder="全年">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">预算</label>
+                    <input type="text" class="form-input" id="fBudget" placeholder="1500-2500元">
+                </div>
+                <div class="form-group full">
+                    <label class="form-label">景点列表（逗号分隔）</label>
+                    <input type="text" class="form-input" id="fAttractions" placeholder="黄果树瀑布,西江千户苗寨,青岩古镇">
+                </div>
+                <div class="form-group full">
+                    <label class="form-label">路线描述</label>
+                    <textarea class="form-input" id="fDesc" placeholder="路线简介..."></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="admin-modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveRoute()">保存</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var allData = [];
+
+function loadData(){
+    fetch('/admin/api/routes').then(function(r){return r.json();}).then(function(data){
+        allData = data;
+        renderTable(data);
+    });
+}
+
+function renderTable(data){
+    document.getElementById('countInfo').textContent = '共 ' + data.length + ' 条路线';
+    document.getElementById('tableBody').innerHTML = data.map(function(r){
+        var stops = (r.attractions_list||'').split(',').slice(0,3).join(' → ');
+        if((r.attractions_list||'').split(',').length > 3) stops += '...';
+        return '<tr>' +
+            '<td>'+r.id+'</td>' +
+            '<td class="col-name">'+esc(r.name)+'</td>' +
+            '<td><span class="tag tag-primary" style="font-size:11px;padding:2px 8px;">'+esc(r.route_type)+'</span></td>' +
+            '<td>'+esc(r.duration)+'</td>' +
+            '<td>'+esc(r.difficulty)+'</td>' +
+            '<td>'+esc(r.budget)+'</td>' +
+            '<td style="max-width:250px;">'+esc(stops)+'</td>' +
+            '<td class="col-actions">' +
+                '<button class="btn btn-ghost btn-sm" onclick="editRoute('+r.id+')">✏️</button>' +
+                '<button class="btn btn-ghost btn-sm" onclick="deleteRoute('+r.id+',\''+esc(r.name)+'\')">🗑️</button>' +
+            '</td></tr>';
+    }).join('');
+}
+
+function openModal(data){
+    document.getElementById('modalTitle').textContent = data ? '编辑路线' : '添加路线';
+    document.getElementById('editId').value = data ? data.id : '';
+    document.getElementById('fName').value = data ? data.name||'' : '';
+    document.getElementById('fType').value = data ? data.route_type||'经典' : '经典';
+    document.getElementById('fDuration').value = data ? data.duration||'' : '';
+    document.getElementById('fDifficulty').value = data ? data.difficulty||'简单' : '简单';
+    document.getElementById('fSeason').value = data ? data.season||'' : '';
+    document.getElementById('fBudget').value = data ? data.budget||'' : '';
+    document.getElementById('fAttractions').value = data ? data.attractions_list||'' : '';
+    document.getElementById('fDesc').value = data ? data.description||'' : '';
+    document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+
+function editRoute(id){
+    var r = allData.find(function(x){return x.id===id;});
+    if(r) openModal(r);
+}
+
+function saveRoute(){
+    var id = document.getElementById('editId').value;
+    var body = {
+        name: document.getElementById('fName').value,
+        route_type: document.getElementById('fType').value,
+        duration: document.getElementById('fDuration').value,
+        difficulty: document.getElementById('fDifficulty').value,
+        season: document.getElementById('fSeason').value,
+        budget: document.getElementById('fBudget').value,
+        attractions_list: document.getElementById('fAttractions').value,
+        description: document.getElementById('fDesc').value,
+    };
+    if(!body.name){alert('请输入路线名称');return;}
+    var url = id ? '/admin/api/routes/'+id : '/admin/api/routes';
+    var method = id ? 'PUT' : 'POST';
+    fetch(url,{method:method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.json();}).then(function(d){
+        if(d.error){alert(d.error);return;}
+        closeModal();loadData();
+    });
+}
+
+function deleteRoute(id,name){
+    if(!confirm('确定删除「'+name+'」？'))return;
+    fetch('/admin/api/routes/'+id,{method:'DELETE'}).then(function(){loadData();});
+}
+
+function esc(s){if(!s)return '';var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+loadData();
+</script>
+{% endblock %}

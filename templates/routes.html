@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}路线推荐 - 贵州旅游{% endblock %}
+{% block nav_active_routes %}active{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-title text-3xl font-bold">🗺️ 经典路线推荐</h1>
+        <p class="page-subtitle text-base text-muted">为您精心规划的贵州旅行路线</p>
+    </div>
+</section>
+
+<section class="routes-full-section">
+    <div class="container">
+        <div class="routes-grid-full" id="routesGridFull">
+            <!-- 动态加载 -->
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block page_script %}
+<script>
+// 加载所有路线
+function loadAllRoutes() {
+    fetch('/api/routes')
+        .then(r => r.json())
+        .then(data => {
+            const grid = document.getElementById('routesGridFull');
+            if (!grid) return;
+
+            grid.innerHTML = data.map(route => `
+                <div class="route-card-full" onclick="showRouteDetail(${route.id})">
+                    <div class="route-header">
+                        <div class="route-name">${escapeHtml(route.name)}</div>
+                        <div class="route-duration">${escapeHtml(route.duration)}</div>
+                    </div>
+                    <div class="route-desc">${escapeHtml(route.description)}</div>
+                    <div class="route-tags">
+                        ${(route.attractions_list || '').split(',').map(a =>
+                            `<span class="tag">${escapeHtml(a.trim())}</span>`
+                        ).join('')}
+                    </div>
+                    <div class="route-meta">
+                        ${route.difficulty ? `<span class="route-meta-item">💪 ${escapeHtml(route.difficulty)}</span>` : ''}
+                        ${route.budget ? `<span class="route-meta-item">💰 ${escapeHtml(route.budget)}</span>` : ''}
+                        ${route.season ? `<span class="route-meta-item">🌤️ ${escapeHtml(route.season)}</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        })
+        .catch(error => {
+            console.error('Failed to load routes:', error);
+        });
+}
+
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', loadAllRoutes);
+</script>
+{% endblock %}

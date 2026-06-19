@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+{% block title %}仪表盘{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <div>
+        <div class="admin-page-title">📊 仪表盘</div>
+        <div class="admin-breadcrumb"><a href="/admin/">首页</a> / 仪表盘</div>
+    </div>
+</div>
+
+<!-- 统计卡片 -->
+<div class="stat-grid" id="statGrid"></div>
+
+<!-- 图表 -->
+<div class="chart-grid">
+    <div class="chart-card">
+        <div class="chart-title">📈 景点分类分布</div>
+        <canvas id="catChart" height="250"></canvas>
+    </div>
+    <div class="chart-card">
+        <div class="chart-title">🗺️ 地区分布</div>
+        <canvas id="regionChart" height="250"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var COLORS = ['#00B96B','#36CFC9','#FAAD14','#FF7A00','#9C27B0','#F44336','#00BCD4','#607D8B','#795548','#E91E63'];
+
+fetch('/admin/api/stats').then(function(r){return r.json();}).then(function(d){
+    // 统计卡片
+    var cards = [
+        { icon:'🏔️', bg:'#ECFDF5', value:d.total, label:'景点总数' },
+        { icon:'🎫', bg:'#FFF7ED', value:d.free, label:'免费景点' },
+        { icon:'⭐', bg:'#FFFBEB', value:d.avg_rating, label:'平均评分' },
+        { icon:'🗺️', bg:'#EFF6FF', value:d.routes, label:'旅游路线' },
+        { icon:'❤️', bg:'#FDF2F8', value:d.favorites, label:'用户收藏' },
+        { icon:'🖼️', bg:'#F5F3FF', value:d.images, label:'景点图片' },
+    ];
+    document.getElementById('statGrid').innerHTML = cards.map(function(c){
+        return '<div class="stat-card">' +
+            '<div class="stat-icon" style="background:'+c.bg+'">'+c.icon+'</div>' +
+            '<div class="stat-info"><div class="stat-value">'+c.value+'</div><div class="stat-label">'+c.label+'</div></div></div>';
+    }).join('');
+
+    // 分类饼图
+    new Chart(document.getElementById('catChart'), {
+        type: 'doughnut',
+        data: {
+            labels: d.cat_stats.map(function(c){return c.category||'其他';}),
+            datasets: [{ data: d.cat_stats.map(function(c){return c.cnt;}), backgroundColor: COLORS }]
+        },
+        options: { responsive:true, plugins:{ legend:{ position:'bottom', labels:{ padding:16 } } } }
+    });
+
+    // 地区柱状图
+    new Chart(document.getElementById('regionChart'), {
+        type: 'bar',
+        data: {
+            labels: d.region_stats.map(function(r){return r.region;}),
+            datasets: [{ label:'景点数', data: d.region_stats.map(function(r){return r.cnt;}), backgroundColor: '#00B96B', borderRadius: 6 }]
+        },
+        options: { responsive:true, plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true } } }
+    });
+});
+</script>
+{% endblock %}

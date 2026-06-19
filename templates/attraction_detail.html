@@ -1,0 +1,521 @@
+{% extends "base.html" %}
+
+{% block title %}景点详情 - 贵州旅游景点智能问答助手{% endblock %}
+
+{% block head_extra %}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- ==================== IMAGE LIGHTBOX ==================== -->
+<div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+    <div class="lightbox-container" onclick="event.stopPropagation()">
+        <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+        <button class="lightbox-prev" onclick="prevImage()">‹</button>
+        <button class="lightbox-next" onclick="nextImage()">›</button>
+        <div class="lightbox-image-wrapper">
+            <img class="lightbox-image" id="lightboxImage" src="" alt="">
+        </div>
+        <div class="lightbox-counter" id="lightboxCounter">1 / 1</div>
+        <div class="lightbox-thumbnails" id="lightboxThumbnails"></div>
+    </div>
+</div>
+
+<!-- ==================== DETAIL HERO ==================== -->
+<div class="detail-hero" data-animation="fadeInUp">
+    <div class="detail-hero-inner">
+        <!-- Gallery -->
+        <div class="detail-gallery" id="detailGallery" onclick="openLightbox()" style="cursor: pointer;">
+            🏔️
+        </div>
+
+        <!-- Info -->
+        <div class="detail-info">
+            <nav class="breadcrumb text-sm text-muted" aria-label="面包屑导航">
+                <a href="/">首页</a>
+                <span class="breadcrumb-sep">›</span>
+                <a href="/#attractions">景点大全</a>
+                <span class="breadcrumb-sep">›</span>
+                <span id="breadcrumbName">加载中...</span>
+            </nav>
+
+            <h1 class="detail-name text-3xl font-bold" id="detailName">加载中...</h1>
+
+            <div class="detail-tags" id="detailTags"></div>
+
+            <div class="detail-meta-grid" id="detailMeta" data-stagger></div>
+
+            <div class="detail-actions">
+                <button class="btn btn-primary" id="favoriteBtn" onclick="toggleFavorite()">
+                    ☆ 收藏
+                </button>
+                <button class="btn btn-secondary" onclick="shareAttraction()">
+                    ↗ 分享
+                </button>
+                <button class="btn btn-ghost" onclick="askAboutAttraction()">
+                    💬 AI问答
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== DETAIL BODY ==================== -->
+<div class="detail-body">
+    <!-- Left: Tabs -->
+    <div class="detail-main">
+        <div class="detail-tabs tabs">
+            <button class="detail-tab tab active" data-tab="intro" onclick="switchTab('intro')">📝 景点介绍</button>
+            <button class="detail-tab tab" data-tab="guide" onclick="switchTab('guide')">📖 游玩攻略</button>
+            <button class="detail-tab tab" data-tab="highlights" onclick="switchTab('highlights')">✨ 景点亮点</button>
+            <button class="detail-tab tab" data-tab="tips" onclick="switchTab('tips')">💡 游玩贴士</button>
+            <button class="detail-tab tab" data-tab="ai" onclick="switchTab('ai')">🤖 AI问答</button>
+        </div>
+
+        <!-- Tab: Intro -->
+        <div class="detail-tab-content tab-panel active" id="tab-intro">
+            <div class="intro-content" id="introContent">
+                <div class="detail-description text-base leading-relaxed" id="detailDesc">加载中...</div>
+            </div>
+        </div>
+
+        <!-- Tab: Guide -->
+        <div class="detail-tab-content tab-panel" id="tab-guide">
+            <div class="detail-guide text-base leading-relaxed" id="guideContent">加载中...</div>
+        </div>
+
+        <!-- Tab: Highlights -->
+        <div class="detail-tab-content tab-panel" id="tab-highlights">
+            <div class="highlights-grid" id="highlightsGrid">
+                <!-- 动态加载 -->
+            </div>
+        </div>
+
+        <!-- Tab: Tips -->
+        <div class="detail-tab-content tab-panel" id="tab-tips">
+            <div class="tips-container" id="tipsContent">
+                <!-- 动态加载 -->
+            </div>
+        </div>
+
+        <!-- Tab: AI -->
+        <div class="detail-tab-content tab-panel" id="tab-ai">
+            <div class="card card-flat" style="padding:var(--space-8);text-align:center;">
+                <div style="font-size:var(--text-5xl);margin-bottom:var(--space-4);">🤖</div>
+                <h3 class="text-xl font-semibold" style="margin-bottom:var(--space-3);">AI 智能问答</h3>
+                <p class="text-sm text-muted" style="margin-bottom:var(--space-5);">有关这个景点的任何问题，AI 都能为您解答</p>
+                <div class="input-group" style="max-width:500px;margin:0 auto;">
+                    <input type="text" class="input" id="detailChatInput"
+                           placeholder="例如：这里适合带小孩去吗？"
+                           onkeypress="if(event.key==='Enter')sendDetailChat()"
+                           style="flex:1;">
+                    <button class="btn btn-primary" onclick="sendDetailChat()">提问</button>
+                </div>
+                <div id="detailChatMessages" style="text-align:left;margin-top:var(--space-6);max-height:400px;overflow-y:auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Sidebar -->
+    <div class="detail-sidebar">
+        <div class="detail-sidebar-card card" data-animation="fadeInRight">
+            <div class="detail-sidebar-title text-base font-semibold">ℹ️ 实用信息</div>
+            <ul class="info-list" id="infoList"></ul>
+        </div>
+
+        <div class="detail-sidebar-card card" data-animation="fadeInRight">
+            <div class="detail-sidebar-title text-base font-semibold">📍 周边景点</div>
+            <div class="nearby-tags" id="nearbyAttractions"></div>
+        </div>
+
+        <div class="detail-sidebar-card card" data-animation="fadeInRight">
+            <div class="detail-sidebar-title text-base font-semibold">🍜 周边美食</div>
+            <div class="food-tags" id="nearbyFood"></div>
+        </div>
+
+        <div class="detail-sidebar-card card" data-animation="fadeInRight">
+            <div class="detail-sidebar-title text-base font-semibold">🏨 住宿推荐</div>
+            <div class="hotel-tags" id="nearbyHotels"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_script %}
+<script>
+const attractionId = {{ attraction_id }};
+let attractionData = null;
+let isFavorited = false;
+let allImages = [];
+let currentImageIndex = 0;
+
+// Lightbox functions
+function openLightbox() {
+    if (allImages.length === 0) return;
+    document.getElementById('lightboxOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    showImage(0);
+}
+
+function closeLightbox() {
+    document.getElementById('lightboxOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function showImage(index) {
+    currentImageIndex = index;
+    const img = allImages[index];
+    document.getElementById('lightboxImage').src = img.image_url;
+    document.getElementById('lightboxImage').alt = img.description || '';
+    document.getElementById('lightboxCounter').textContent = `${index + 1} / ${allImages.length}`;
+
+    // Update thumbnails
+    const thumbs = document.getElementById('lightboxThumbnails');
+    thumbs.innerHTML = allImages.map((image, i) => `
+        <img class="lightbox-thumb ${i === index ? 'active' : ''}"
+             src="${image.image_url}"
+             onclick="showImage(${i})"
+             alt="">
+    `).join('');
+}
+
+function prevImage() {
+    const newIndex = (currentImageIndex - 1 + allImages.length) % allImages.length;
+    showImage(newIndex);
+}
+
+function nextImage() {
+    const newIndex = (currentImageIndex + 1) % allImages.length;
+    showImage(newIndex);
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('lightboxOverlay').classList.contains('active')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') prevImage();
+    if (e.key === 'ArrowRight') nextImage();
+});
+
+// Load attraction detail
+fetch(`/api/attractions/${attractionId}`)
+    .then(r => r.json())
+    .then(data => {
+        attractionData = data;
+        allImages = data.images || [];
+        renderAttraction(data);
+        checkFavorite();
+
+        // Load image
+        if (data.images && data.images.length > 0) {
+            document.getElementById('detailGallery').innerHTML =
+                `<img src="${data.images[0].image_url}" alt="${data.name}" onerror="this.parentElement.innerHTML='🏔️'">
+                 <div class="detail-gallery-overlay">📷 ${data.images.length} 张图片（点击查看全部）</div>`;
+        }
+    })
+    .catch(err => console.error('加载失败:', err));
+
+function renderAttraction(attr) {
+    document.getElementById('breadcrumbName').textContent = attr.name;
+    document.getElementById('detailName').textContent = attr.name;
+    document.title = attr.name + ' - 贵州旅游景点智能问答助手';
+
+    // Tags
+    const tags = (attr.features || '').split(',').filter(f => f.trim());
+    document.getElementById('detailTags').innerHTML = tags.map(t =>
+        `<span class="tag tag-primary">${escapeHtml(t.trim())}</span>`
+    ).join('');
+
+    // Meta
+    const metaItems = [
+        { icon: '🎫', label: '门票', value: attr.ticket_price || '暂无' },
+        { icon: '⏰', label: '开放时间', value: attr.opening_hours || '暂无' },
+        { icon: '⭐', label: '评分', value: attr.rating ? attr.rating + '分' : '暂无' },
+        { icon: '📅', label: '最佳季节', value: attr.best_season || '全年' },
+        { icon: '⏱️', label: '建议时长', value: attr.suggested_duration || '暂无' },
+        { icon: '📞', label: '电话', value: attr.phone || '暂无' }
+    ];
+    document.getElementById('detailMeta').innerHTML = metaItems.map(item =>
+        `<div class="detail-meta-item">
+            <div class="detail-meta-icon">${item.icon}</div>
+            <div>
+                <div class="detail-meta-label">${item.label}</div>
+                <div class="detail-meta-value">${escapeHtml(item.value)}</div>
+            </div>
+        </div>`
+    ).join('');
+
+    // Description - 丰富的介绍内容
+    const introSections = [];
+
+    // 主描述
+    if (attr.description) {
+        introSections.push(`
+            <div class="intro-section">
+                <h3 class="intro-section-title">📍 景点简介</h3>
+                <p class="intro-section-content">${escapeHtml(attr.description)}</p>
+            </div>
+        `);
+    }
+
+    // 历史文化
+    if (attr.history_culture) {
+        introSections.push(`
+            <div class="intro-section">
+                <h3 class="intro-section-title">🏛️ 历史文化</h3>
+                <p class="intro-section-content">${escapeHtml(attr.history_culture)}</p>
+            </div>
+        `);
+    }
+
+    // 景点特色
+    if (attr.features) {
+        const featureList = attr.features.split(',').map(f => f.trim()).filter(f => f);
+        introSections.push(`
+            <div class="intro-section">
+                <h3 class="intro-section-title">✨ 景点特色</h3>
+                <div class="intro-features">
+                    ${featureList.map(f => `<span class="intro-feature-tag">${escapeHtml(f)}</span>`).join('')}
+                </div>
+            </div>
+        `);
+    }
+
+    // 拍照指南
+    if (attr.best_photo_spots) {
+        introSections.push(`
+            <div class="intro-section">
+                <h3 class="intro-section-title">📸 拍照指南</h3>
+                <p class="intro-section-content">${escapeHtml(attr.best_photo_spots)}</p>
+            </div>
+        `);
+    }
+
+    // 美食推荐
+    if (attr.nearby_restaurants) {
+        const foods = attr.nearby_restaurants.split(',').map(f => f.trim()).filter(f => f);
+        introSections.push(`
+            <div class="intro-section">
+                <h3 class="intro-section-title">🍜 周边美食</h3>
+                <div class="intro-food-list">
+                    ${foods.map(f => `<span class="intro-food-item">🍽️ ${escapeHtml(f)}</span>`).join('')}
+                </div>
+            </div>
+        `);
+    }
+
+    // 住宿推荐
+    if (attr.nearby_hotels) {
+        const hotels = attr.nearby_hotels.split(',').map(h => h.trim()).filter(h => h);
+        introSections.push(`
+            <div class="intro-section">
+                <h3 class="intro-section-title">🏨 住宿推荐</h3>
+                <div class="intro-hotel-list">
+                    ${hotels.map(h => `<span class="intro-hotel-item">🏠 ${escapeHtml(h)}</span>`).join('')}
+                </div>
+            </div>
+        `);
+    }
+
+    document.getElementById('introContent').innerHTML = introSections.join('') || '<p style="color:var(--text-muted)">暂无详细介绍</p>';
+
+    // Guide
+    if (attr.guides && attr.guides.length > 0) {
+        document.getElementById('guideContent').textContent = attr.guides[0].content;
+    } else {
+        document.getElementById('guideContent').textContent = '暂无攻略信息';
+    }
+
+    // Nearby
+    const nearby = (attr.nearby_attractions || '').split(',').filter(a => a.trim());
+    document.getElementById('nearbyAttractions').innerHTML = nearby.map(name =>
+        `<a class="nearby-tag" href="/map" onclick="event.preventDefault();alert('请在地图页面搜索：${escapeHtml(name.trim())}')">${escapeHtml(name.trim())}</a>`
+    ).join('') || '<span style="color:var(--text-muted)">暂无周边景点信息</span>';
+
+    // Info list - 精简版，只保留最实用的信息
+    const infoItems = [
+        { icon: '📍', label: '地址', value: attr.address },
+        { icon: '🚌', label: '交通', value: attr.transportation },
+        { icon: '🎫', label: '预约方式', value: attr.ticket_booking },
+        { icon: '💰', label: '优惠政策', value: attr.discount_policy }
+    ].filter(i => i.value);
+
+    document.getElementById('infoList').innerHTML = infoItems.map(item =>
+        `<li>
+            <span class="info-list-icon">${item.icon}</span>
+            <div>
+                <div class="info-list-label">${item.label}</div>
+                <div class="info-list-value">${escapeHtml(item.value)}</div>
+            </div>
+        </li>`
+    ).join('');
+
+    // Highlights
+    const highlights = [];
+    if (attr.history_culture) highlights.push({ icon: '🏛️', title: '历史文化', content: attr.history_culture });
+    if (attr.best_photo_spots) highlights.push({ icon: '📸', title: '最佳拍照点', content: attr.best_photo_spots });
+    if (attr.special_events) highlights.push({ icon: '🎉', title: '特色活动', content: attr.special_events });
+    if (attr.night_activities) highlights.push({ icon: '🌙', title: '夜间活动', content: attr.night_activities });
+    if (attr.family_friendly) highlights.push({ icon: '👨‍👩‍👧‍👦', title: '亲子友好', content: attr.family_friendly });
+    if (attr.team_activities) highlights.push({ icon: '👥', title: '团队活动', content: attr.team_activities });
+
+    document.getElementById('highlightsGrid').innerHTML = highlights.length > 0
+        ? highlights.map(h => `
+            <div class="highlight-card">
+                <div class="highlight-icon">${h.icon}</div>
+                <div class="highlight-title">${h.title}</div>
+                <div class="highlight-content">${escapeHtml(h.content)}</div>
+            </div>
+        `).join('')
+        : '<p style="color:var(--text-muted)">暂无亮点信息</p>';
+
+    // Tips
+    const tipsItems = [];
+    if (attr.tips) tipsItems.push({ icon: '💡', label: '游玩建议', value: attr.tips });
+    if (attr.weather_tips) tipsItems.push({ icon: '🌤️', label: '天气建议', value: attr.weather_tips });
+    if (attr.clothing_tips) tipsItems.push({ icon: '👕', label: '穿着建议', value: attr.clothing_tips });
+    if (attr.must_bring) tipsItems.push({ icon: '🎒', label: '必带物品', value: attr.must_bring });
+    if (attr.crowd_level) tipsItems.push({ icon: '👥', label: '人流情况', value: attr.crowd_level });
+    if (attr.accessibility) tipsItems.push({ icon: '♿', label: '无障碍', value: attr.accessibility });
+
+    document.getElementById('tipsContent').innerHTML = tipsItems.length > 0
+        ? tipsItems.map(t => `
+            <div class="tip-item">
+                <div class="tip-icon">${t.icon}</div>
+                <div class="tip-body">
+                    <div class="tip-label">${t.label}</div>
+                    <div class="tip-value">${escapeHtml(t.value)}</div>
+                </div>
+            </div>
+        `).join('')
+        : '<p style="color:var(--text-muted)">暂无贴士信息</p>';
+
+    // Nearby food
+    const food = (attr.nearby_restaurants || '').split(',').filter(f => f.trim());
+    document.getElementById('nearbyFood').innerHTML = food.length > 0
+        ? food.map(name => `<span class="food-tag">🍜 ${escapeHtml(name.trim())}</span>`).join('')
+        : '<span style="color:var(--text-muted)">暂无美食信息</span>';
+
+    // Nearby hotels
+    const hotels = (attr.nearby_hotels || '').split(',').filter(h => h.trim());
+    document.getElementById('nearbyHotels').innerHTML = hotels.length > 0
+        ? hotels.map(name => `<span class="hotel-tag">🏨 ${escapeHtml(name.trim())}</span>`).join('')
+        : '<span style="color:var(--text-muted)">暂无住宿信息</span>';
+}
+
+// Tab switching
+function switchTab(tab) {
+    document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// Favorite
+function checkFavorite() {
+    fetch('/api/favorites/default')
+        .then(r => r.json())
+        .then(data => {
+            isFavorited = data.some(f => f.id === attractionId);
+            updateFavoriteBtn();
+        });
+}
+
+function toggleFavorite() {
+    const method = isFavorited ? 'DELETE' : 'POST';
+    fetch('/api/favorites', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: 'default', attraction_id: attractionId })
+    }).then(() => {
+        isFavorited = !isFavorited;
+        updateFavoriteBtn();
+    });
+}
+
+function updateFavoriteBtn() {
+    const btn = document.getElementById('favoriteBtn');
+    if (isFavorited) {
+        btn.innerHTML = '★ 已收藏';
+        btn.classList.add('btn-secondary');
+        btn.classList.remove('btn-primary');
+        btn.style.color = 'var(--accent-warm)';
+    } else {
+        btn.innerHTML = '☆ 收藏';
+        btn.classList.add('btn-primary');
+        btn.classList.remove('btn-secondary');
+        btn.style.color = '';
+    }
+}
+
+function shareAttraction() {
+    if (navigator.share) {
+        navigator.share({ title: attractionData.name, text: attractionData.description, url: location.href });
+    } else {
+        navigator.clipboard.writeText(location.href);
+        alert('链接已复制到剪贴板');
+    }
+}
+
+// AI Q&A on detail page
+function askAboutAttraction() {
+    switchTab('ai');
+    document.getElementById('detailChatInput').focus();
+}
+
+async function sendDetailChat() {
+    const input = document.getElementById('detailChatInput');
+    const q = input.value.trim();
+    if (!q) return;
+    input.value = '';
+
+    const messages = document.getElementById('detailChatMessages');
+    const fullQ = `关于${attractionData ? attractionData.name : '这个景点'}：${q}`;
+
+    // User message
+    const userDiv = document.createElement('div');
+    userDiv.style.marginBottom = 'var(--space-3)';
+    userDiv.innerHTML = `<div class="chat-msg chat-msg-user"><div class="chat-msg-body"><div class="chat-bubble chat-bubble-user">${escapeHtml(q)}</div></div></div>`;
+    messages.appendChild(userDiv);
+
+    // Thinking
+    const thinkDiv = document.createElement('div');
+    thinkDiv.id = 'dt-' + Date.now();
+    thinkDiv.style.marginBottom = 'var(--space-3)';
+    thinkDiv.innerHTML = `<div class="chat-msg"><div class="chat-msg-avatar chat-msg-avatar-ai">🤖</div><div class="chat-msg-body"><div class="chat-bubble chat-bubble-ai"><div class="chat-thinking-dots"><div class="chat-thinking-dot"></div><div class="chat-thinking-dot"></div><div class="chat-thinking-dot"></div></div></div></div></div>`;
+    messages.appendChild(thinkDiv);
+    messages.scrollTop = messages.scrollHeight;
+
+    try {
+        const resp = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: fullQ })
+        });
+        const data = await resp.json();
+        thinkDiv.remove();
+
+        const aiDiv = document.createElement('div');
+        aiDiv.style.marginBottom = 'var(--space-3)';
+        const rendered = (window.ChatSystem && window.ChatSystem.renderMarkdown)
+            ? ChatSystem.renderMarkdown(data.answer)
+            : escapeHtml(data.answer).replace(/\n/g, '<br>');
+        aiDiv.innerHTML = `<div class="chat-msg"><div class="chat-msg-avatar chat-msg-avatar-ai">🤖</div><div class="chat-msg-body"><div class="chat-bubble chat-bubble-ai">${rendered}</div></div></div>`;
+        messages.appendChild(aiDiv);
+
+        // Attraction cards
+        if (data.attractions && data.attractions.length > 0 && window.ChatSystem) {
+            const cardsDiv = document.createElement('div');
+            cardsDiv.style.marginBottom = 'var(--space-3)';
+            cardsDiv.innerHTML = ChatSystem.buildAttractionCards(data.attractions);
+            messages.appendChild(cardsDiv);
+        }
+
+        messages.scrollTop = messages.scrollHeight;
+    } catch (e) {
+        thinkDiv.remove();
+        messages.innerHTML += `<div class="text-sm text-muted" style="margin:var(--space-2) 0;">抱歉，出现了错误</div>`;
+    }
+}
+</script>
+{% endblock %}

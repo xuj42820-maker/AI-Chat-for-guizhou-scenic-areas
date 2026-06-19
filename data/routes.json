@@ -1,0 +1,82 @@
+[
+    {
+        "name": "贵州经典3日游",
+        "description": "游览贵州最著名的景点，体验贵州山水人文之美",
+        "duration": "3天2晚",
+        "difficulty": "简单",
+        "season": "全年",
+        "budget": "1500-2500元",
+        "attractions_list": "黄果树瀑布,西江千户苗寨,青岩古镇",
+        "route_type": "经典"
+    },
+    {
+        "name": "黔东南民族风情5日游",
+        "description": "深度体验苗族侗族文化，探访原生态村寨",
+        "duration": "5天4晚",
+        "difficulty": "中等",
+        "season": "全年",
+        "budget": "2500-4000元",
+        "attractions_list": "西江千户苗寨,肇兴侗寨,镇远古镇,加榜梯田,岜沙苗寨",
+        "route_type": "民族"
+    },
+    {
+        "name": "贵州自然风光4日游",
+        "description": "欣赏贵州壮丽的自然风光，感受喀斯特地貌",
+        "duration": "4天3晚",
+        "difficulty": "中等",
+        "season": "4-10月",
+        "budget": "2000-3500元",
+        "attractions_list": "黄果树瀑布,荔波小七孔,梵净山,织金洞",
+        "route_type": "自然"
+    },
+    {
+        "name": "遵义红色文化2日游",
+        "description": "追寻红色足迹，学习革命历史",
+        "duration": "2天1晚",
+        "difficulty": "简单",
+        "season": "全年",
+        "budget": "800-1500元",
+        "attractions_list": "遵义会议会址,红军山,海龙屯",
+        "route_type": "红色"
+    },
+    {
+        "name": "黔西南喀斯特探秘3日游",
+        "description": "探索黔西南独特的喀斯特地貌和民族风情",
+        "duration": "3天2晚",
+        "difficulty": "中等",
+        "season": "全年",
+        "budget": "1500-2500元",
+        "attractions_list": "万峰林,马岭河峡谷,双乳峰,晴隆二十四道拐",
+        "route_type": "探险"
+    },
+    {
+        "name": "贵阳周边休闲2日游",
+        "description": "贵阳市区及周边休闲度假",
+        "duration": "2天1晚",
+        "difficulty": "简单",
+        "season": "全年",
+        "budget": "800-1200元",
+        "attractions_list": "黔灵山公园,青岩古镇,花溪公园,天河潭",
+        "route_type": "休闲"
+    },
+    {
+        "name": "贵州温泉养生3日游",
+        "description": "泡温泉、赏美景，放松身心",
+        "duration": "3天2晚",
+        "difficulty": "简单",
+        "season": "秋冬季",
+        "budget": "1500-2500元",
+        "attractions_list": "石阡温泉,梵净山,思南温泉",
+        "route_type": "养生"
+    },
+    {
+        "name": "贵州美食之旅4日游",
+        "description": "品尝贵州各地特色美食",
+        "duration": "4天3晚",
+        "difficulty": "简单",
+        "season": "全年",
+        "budget": "2000-3000元",
+        "attractions_list": "贵阳二七路小吃街,遵义羊肉粉,凯里酸汤鱼,安顺裹卷",
+        "route_type": "美食"
+    }
+]

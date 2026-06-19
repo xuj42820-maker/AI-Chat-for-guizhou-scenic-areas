@@ -1,0 +1,416 @@
+/* ============================================================
+   ADMIN SYSTEM — 管理后台样式
+   ============================================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: var(--font-sans);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    min-height: 100vh;
+}
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-hero);
+}
+.login-card {
+    width: 380px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-2xl);
+}
+.login-logo {
+    text-align: center;
+    font-size: 48px;
+    margin-bottom: var(--space-4);
+}
+.login-title {
+    text-align: center;
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    margin-bottom: var(--space-6);
+}
+.login-error {
+    padding: var(--space-3);
+    background: var(--color-error-light);
+    color: var(--color-error);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-4);
+    text-align: center;
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.admin-sidebar {
+    width: 240px;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-default);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: var(--z-sticky);
+}
+.admin-sidebar-header {
+    padding: var(--space-5);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+.admin-sidebar-logo {
+    font-size: 28px;
+}
+.admin-sidebar-title {
+    font-size: var(--text-base);
+    font-weight: var(--weight-bold);
+    color: var(--text-primary);
+}
+.admin-sidebar-sub {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+.admin-nav {
+    flex: 1;
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+.admin-nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2-5) var(--space-3);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    transition: all var(--duration-fast) var(--ease-out);
+}
+.admin-nav-item:hover {
+    background: var(--color-hover);
+    color: var(--text-primary);
+}
+.admin-nav-item.active {
+    background: var(--color-selected);
+    color: var(--color-primary);
+    font-weight: var(--weight-semibold);
+}
+.admin-nav-item-icon {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+}
+.admin-sidebar-footer {
+    padding: var(--space-4);
+    border-top: 1px solid var(--border-subtle);
+}
+.admin-user {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+}
+.admin-user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+}
+
+/* Main */
+.admin-main {
+    flex: 1;
+    margin-left: 240px;
+    padding: var(--space-6);
+    min-width: 0;
+}
+
+/* Header */
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-6);
+}
+.admin-page-title {
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-bold);
+}
+.admin-breadcrumb {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+.admin-breadcrumb a {
+    color: var(--text-link);
+    text-decoration: none;
+}
+
+/* ============================================================
+   DASHBOARD CARDS
+   ============================================================ */
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+.stat-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    transition: all var(--duration-normal) var(--ease-out);
+}
+.stat-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+.stat-info {}
+.stat-value {
+    font-size: var(--text-2xl);
+    font-weight: var(--weight-bold);
+    color: var(--text-primary);
+}
+.stat-label {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin-top: var(--space-0-5);
+}
+
+/* ============================================================
+   CHART CARDS
+   ============================================================ */
+
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+.chart-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+}
+.chart-title {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+    margin-bottom: var(--space-4);
+}
+
+/* ============================================================
+   DATA TABLE
+   ============================================================ */
+
+.table-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+.table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--border-subtle);
+}
+.table-title {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-semibold);
+}
+.table-actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.data-table th {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    color: var(--text-muted);
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border-default);
+    white-space: nowrap;
+}
+.data-table td {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-subtle);
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.data-table tr:hover td {
+    background: var(--color-hover);
+}
+.data-table .col-name {
+    font-weight: var(--weight-medium);
+    color: var(--text-primary);
+}
+.data-table .col-actions {
+    display: flex;
+    gap: var(--space-1);
+}
+
+.table-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-5);
+    border-top: 1px solid var(--border-subtle);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+/* ============================================================
+   MODAL (ADMIN)
+   ============================================================ */
+
+.admin-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-overlay);
+    z-index: var(--z-modal);
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+.admin-modal-overlay.open {
+    display: flex;
+}
+.admin-modal {
+    background: var(--bg-surface);
+    border-radius: var(--radius-xl);
+    width: 600px;
+    max-width: 90vw;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-2xl);
+}
+.admin-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5);
+    border-bottom: 1px solid var(--border-subtle);
+}
+.admin-modal-title {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+}
+.admin-modal-body {
+    padding: var(--space-5);
+}
+.admin-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--border-subtle);
+}
+
+/* ============================================================
+   FORM (ADMIN)
+   ============================================================ */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1-5);
+}
+.form-group.full {
+    grid-column: 1 / -1;
+}
+.form-label {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--text-secondary);
+}
+.form-input {
+    padding: var(--space-2-5) var(--space-3);
+    border: 1.5px solid var(--border-default);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+    background: var(--bg-surface);
+    transition: var(--input-transition);
+    outline: none;
+}
+.form-input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+textarea.form-input {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .admin-sidebar { display: none; }
+    .admin-main { margin-left: 0; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .chart-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+}

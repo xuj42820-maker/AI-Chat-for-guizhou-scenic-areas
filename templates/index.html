@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}贵州旅游景点智能问答助手{% endblock %}
+{% block nav_active_home %}active{% endblock %}
+
+{% block content %}
+<!-- ==================== HERO BANNER ==================== -->
+<section class="hero-banner hero-fullscreen">
+    <!-- 轮播背景 -->
+    <div class="hero-slideshow">
+        <div class="hero-slide active" style="background-image: url('/static/images/banner/dcgz_TopBanner_1.png')"></div>
+        <div class="hero-slide" style="background-image: url('/static/images/banner/dcgz_TopBanner_2.png')"></div>
+        <div class="hero-slide" style="background-image: url('/static/images/banner/dcgz_TopBanner_3.png')"></div>
+        <div class="hero-slide" style="background-image: url('/static/images/banner/dcgz_TopBanner_4.png')"></div>
+        <div class="hero-slide" style="background-image: url('/static/images/banner/dcgz_TopBanner_6.png')"></div>
+    </div>
+    <!-- 轮播指示器 -->
+    <div class="hero-slideshow-indicators">
+        <button class="slideshow-dot active" data-index="0"></button>
+        <button class="slideshow-dot" data-index="1"></button>
+        <button class="slideshow-dot" data-index="2"></button>
+        <button class="slideshow-dot" data-index="3"></button>
+        <button class="slideshow-dot" data-index="4"></button>
+    </div>
+    <div class="hero-content">
+        <div class="hero-badge tag tag-accent">
+            <span>✨</span>
+            <span>AI 驱动 · 117个景点 · 智能推荐</span>
+        </div>
+
+        <h1 class="hero-title text-6xl font-extrabold leading-tight tracking-tight">发现多彩贵州</h1>
+
+        <p class="hero-subtitle text-lg text-secondary leading-relaxed">
+            基于 AI 的贵州智慧旅游平台，为您提供景点查询、智能问答、路线推荐等全方位旅行服务
+        </p>
+
+        <div class="hero-search input-group">
+            <input type="text" class="hero-search-input input input-lg" id="searchInput"
+                   placeholder="问我任何贵州旅游问题，如：黄果树瀑布门票多少钱？">
+            <button class="hero-search-btn btn btn-primary btn-lg" onclick="sendMessage()">
+                <span>🔍</span>
+                <span>提问</span>
+            </button>
+        </div>
+
+        <div class="hero-quick-tags" data-stagger>
+            <a class="hero-quick-tag tag tag-outline" onclick="askQuestion('贵州有哪些免费景点？')">🎫 免费景点</a>
+            <a class="hero-quick-tag tag tag-outline" onclick="askQuestion('黄果树瀑布门票多少钱？')">💧 黄果树瀑布</a>
+            <a class="hero-quick-tag tag tag-outline" onclick="askQuestion('西江千户苗寨怎么去？')">🏘️ 西江苗寨</a>
+            <a class="hero-quick-tag tag tag-outline" onclick="askQuestion('贵州最佳旅游季节是什么时候？')">📅 最佳季节</a>
+            <a class="hero-quick-tag tag tag-outline" onclick="askQuestion('贵州有什么特色美食？')">🍜 特色美食</a>
+            <a class="hero-quick-tag tag tag-outline" onclick="askQuestion('推荐贵州3日游路线')">🧭 3日游路线</a>
+        </div>
+    </div>
+
+    <div class="scroll-indicator">
+        <div class="scroll-indicator-icon">
+            <div class="scroll-indicator-dot"></div>
+        </div>
+    </div>
+
+    <!-- Mountain SVG decoration -->
+    <div class="hero-mountains">
+        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <path d="M0 120L60 95C120 70 240 20 360 25C480 30 600 90 720 100C840 110 960 70 1080 55C1200 40 1320 50 1380 55L1440 60V120H0Z" fill="var(--bg-base)" fill-opacity="0.5"/>
+            <path d="M0 120L60 105C120 90 240 60 360 55C480 50 600 70 720 80C840 90 960 90 1080 85C1200 80 1320 70 1380 65L1440 60V120H0Z" fill="var(--bg-base)"/>
+        </svg>
+    </div>
+</section>
+
+<!-- ==================== CHAT ==================== -->
+<div class="chat-container" id="chatContainer">
+    <div class="chat-header">
+        <div class="chat-header-left">
+            <div class="chat-avatar-header">🤖</div>
+            <div>
+                <div class="chat-title">贵州旅游助手</div>
+                <div class="chat-subtitle">AI 驱动 · RAG 问答</div>
+            </div>
+        </div>
+        <button class="chat-close" onclick="ChatSystem.close()" aria-label="关闭">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-area">
+        <input type="text" class="chat-input" id="chatInput" placeholder="问问我关于贵州旅游的问题...">
+        <button class="chat-send" id="chatSendBtn" title="发送">
+            <span>→</span>
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_script %}
+<script>
+// Search input Enter
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') sendMessage();
+});
+
+// 背景轮播逻辑
+(function() {
+    const slides = document.querySelectorAll('.hero-slide');
+    const dots = document.querySelectorAll('.slideshow-dot');
+    let currentSlide = 0;
+    const slideCount = slides.length;
+    const intervalTime = 4000; // 4秒切换一次
+
+    function goToSlide(index) {
+        slides[currentSlide].classList.remove('active');
+        dots[currentSlide].classList.remove('active');
+        currentSlide = index;
+        slides[currentSlide].classList.add('active');
+        dots[currentSlide].classList.add('active');
+    }
+
+    function nextSlide() {
+        const next = (currentSlide + 1) % slideCount;
+        goToSlide(next);
+    }
+
+    // 自动轮播
+    let autoPlay = setInterval(nextSlide, intervalTime);
+
+    // 点击指示器切换
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            clearInterval(autoPlay);
+            goToSlide(index);
+            autoPlay = setInterval(nextSlide, intervalTime);
+        });
+    });
+
+    // 鼠标悬停暂停
+    const heroBanner = document.querySelector('.hero-banner');
+    heroBanner.addEventListener('mouseenter', () => clearInterval(autoPlay));
+    heroBanner.addEventListener('mouseleave', () => {
+        autoPlay = setInterval(nextSlide, intervalTime);
+    });
+})();
+</script>
+{% endblock %}

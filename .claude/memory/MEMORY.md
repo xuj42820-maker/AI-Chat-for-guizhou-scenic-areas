@@ -1,0 +1,1 @@
+- [Project PRD Location](project-prd-location.md) — 贵州旅游景点问答助手 PRD 文档位置和更新方式

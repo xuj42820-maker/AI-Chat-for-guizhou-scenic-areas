@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}景点大全 - 贵州旅游{% endblock %}
+{% block nav_active_attractions %}active{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1 class="page-title text-3xl font-bold">📍 景点大全</h1>
+        <p class="page-subtitle text-base text-muted">贵州9市州117个景点详细信息</p>
+    </div>
+</section>
+
+<section class="attractions-full-section">
+    <div class="container">
+        <!-- 筛选区域 -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label class="filter-label">地区</label>
+                <select id="regionFilter" class="filter-select" onchange="filterAttractions()">
+                    <option value="">全部地区</option>
+                    <option value="贵阳市">贵阳市</option>
+                    <option value="遵义市">遵义市</option>
+                    <option value="六盘水市">六盘水市</option>
+                    <option value="安顺市">安顺市</option>
+                    <option value="毕节市">毕节市</option>
+                    <option value="铜仁市">铜仁市</option>
+                    <option value="黔东南苗族侗族自治州">黔东南州</option>
+                    <option value="黔南布依族苗族自治州">黔南州</option>
+                    <option value="黔西南布依族苗族自治州">黔西南州</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">门票</label>
+                <select id="priceFilter" class="filter-select" onchange="filterAttractions()">
+                    <option value="">全部</option>
+                    <option value="free">免费</option>
+                    <option value="paid">收费</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">排序</label>
+                <select id="sortFilter" class="filter-select" onchange="filterAttractions()">
+                    <option value="rating">评分最高</option>
+                    <option value="name">名称排序</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 景点列表 -->
+        <div class="attractions-grid" id="attractionsGrid">
+            <!-- 动态加载 -->
+        </div>
+
+        <!-- 加载提示 -->
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="spinner"></div>
+            <span>加载中...</span>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block page_script %}
+<script>
+let allAttractions = [];
+
+// 加载所有景点
+function loadAllAttractions() {
+    fetch('/api/attractions')
+        .then(r => r.json())
+        .then(data => {
+            allAttractions = data;
+            renderAttractions(data);
+        })
+        .catch(error => {
+            console.error('Failed to load attractions:', error);
+        });
+}
+
+// 渲染景点列表
+function renderAttractions(attractions) {
+    const grid = document.getElementById('attractionsGrid');
+    const loading = document.getElementById('loadingIndicator');
+    if (!grid) return;
+
+    loading.style.display = 'none';
+
+    grid.innerHTML = attractions.map(attr => {
+        const img = attr.image_url
+            ? `<img src="${escapeHtml(attr.image_url)}" alt="${escapeHtml(attr.name)}" onerror="this.style.display='none';this.parentElement.innerHTML='🏔️'">`
+            : '🏔️';
+        return `
+        <a class="attraction-card-full" href="/attraction/${attr.id}">
+            <div class="attraction-card-img">${img}</div>
+            <div class="attraction-card-body">
+                <div class="attraction-card-name">${escapeHtml(attr.name)}</div>
+                <div class="attraction-card-location">📍 ${escapeHtml(attr.address || '贵州')}</div>
+                <div class="attraction-card-desc text-sm text-secondary">${escapeHtml(attr.description || '').substring(0, 80)}...</div>
+                <div class="attraction-card-footer">
+                    <span class="attraction-card-rating">⭐ ${attr.rating || '无'}</span>
+                    <span class="attraction-card-price">${escapeHtml(attr.ticket_price || '免费')}</span>
+                </div>
+            </div>
+        </a>`;
+    }).join('');
+}
+
+// 筛选景点
+function filterAttractions() {
+    const region = document.getElementById('regionFilter').value;
+    const price = document.getElementById('priceFilter').value;
+    const sort = document.getElementById('sortFilter').value;
+
+    let filtered = [...allAttractions];
+
+    if (region) {
+        filtered = filtered.filter(a => a.address && a.address.includes(region));
+    }
+
+    if (price === 'free') {
+        filtered = filtered.filter(a => !a.ticket_price || a.ticket_price === '免费');
+    } else if (price === 'paid') {
+        filtered = filtered.filter(a => a.ticket_price && a.ticket_price !== '免费');
+    }
+
+    if (sort === 'rating') {
+        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else if (sort === 'name') {
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    renderAttractions(filtered);
+}
+
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', loadAllAttractions);
+</script>
+{% endblock %}

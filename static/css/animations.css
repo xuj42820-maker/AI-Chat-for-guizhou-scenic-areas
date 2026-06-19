@@ -1,0 +1,402 @@
+/* ============================================================
+   ANIMATION SYSTEM — 动效系统
+   ============================================================
+   统一管理所有动画，遵循现代 SaaS 产品标准
+   支持 prefers-reduced-motion 无障碍
+   ============================================================ */
+
+/* ============================================================
+   1. 基础过渡 — 给需要动效的元素统一应用
+   ============================================================ */
+
+.navbar,
+.nav-link,
+.card,
+.btn,
+.input,
+.tag,
+.hero-banner,
+.hero-search-input,
+.chat-container,
+.chat-bubble,
+.map-sidebar,
+.map-list-item,
+.map-info-card,
+.settings-panel,
+.settings-option,
+.route-card,
+.feature-card,
+.attraction-card {
+    transition-property: background-color, color, border-color, box-shadow, transform, opacity;
+    transition-duration: var(--duration-normal);
+    transition-timing-function: var(--ease-out);
+}
+
+/* ============================================================
+   2. 页面入场动画
+   ============================================================ */
+
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.page-content {
+    animation: pageEnter var(--duration-slowest) var(--ease-out);
+}
+
+/* ============================================================
+   3. 滚动揭示动画 (IntersectionObserver 驱动)
+   ============================================================ */
+
+[data-animation] {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity var(--duration-slowest) var(--ease-out),
+                transform var(--duration-slowest) var(--ease-out);
+}
+[data-animation].revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+[data-animation="fadeInLeft"] {
+    transform: translateX(-24px);
+}
+[data-animation="fadeInLeft"].revealed {
+    transform: translateX(0);
+}
+
+[data-animation="fadeInRight"] {
+    transform: translateX(24px);
+}
+[data-animation="fadeInRight"].revealed {
+    transform: translateX(0);
+}
+
+[data-animation="zoomIn"] {
+    transform: scale(0.92);
+}
+[data-animation="zoomIn"].revealed {
+    transform: scale(1);
+}
+
+[data-animation="fadeInUp"] {
+    transform: translateY(32px);
+}
+[data-animation="fadeInUp"].revealed {
+    transform: translateY(0);
+}
+
+/* ============================================================
+   4. 子元素交错动画
+   ============================================================ */
+
+[data-stagger] > * {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity var(--duration-slow) var(--ease-out),
+                transform var(--duration-slow) var(--ease-out);
+}
+[data-stagger].revealed > *:nth-child(1) { transition-delay: 0ms; opacity: 1; transform: none; }
+[data-stagger].revealed > *:nth-child(2) { transition-delay: 60ms; opacity: 1; transform: none; }
+[data-stagger].revealed > *:nth-child(3) { transition-delay: 120ms; opacity: 1; transform: none; }
+[data-stagger].revealed > *:nth-child(4) { transition-delay: 180ms; opacity: 1; transform: none; }
+[data-stagger].revealed > *:nth-child(5) { transition-delay: 240ms; opacity: 1; transform: none; }
+[data-stagger].revealed > *:nth-child(6) { transition-delay: 300ms; opacity: 1; transform: none; }
+[data-stagger].revealed > *:nth-child(7) { transition-delay: 360ms; opacity: 1; transform: none; }
+[data-stagger].revealed > *:nth-child(8) { transition-delay: 420ms; opacity: 1; transform: none; }
+
+/* ============================================================
+   5. 基础动画关键帧
+   ============================================================ */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* ============================================================
+   6. 循环动画
+   ============================================================ */
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+/* ============================================================
+   7. 骨架屏 & 加载
+   ============================================================ */
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: var(--glow-sm); }
+    50% { box-shadow: var(--glow-lg); }
+}
+
+@keyframes spin-glow {
+    0% { transform: rotate(0deg); box-shadow: var(--glow-sm); }
+    50% { box-shadow: var(--glow-lg); }
+    100% { transform: rotate(360deg); box-shadow: var(--glow-sm); }
+}
+
+/* ============================================================
+   8. 聊天/打字动画
+   ============================================================ */
+
+@keyframes thinking-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-8px); opacity: 1; }
+}
+
+@keyframes typing-cursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@keyframes message-enter {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ============================================================
+   9. 地图标记动画
+   ============================================================ */
+
+@keyframes markerBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes markerPulse {
+    0% { box-shadow: 0 0 0 0 var(--color-focus-ring); }
+    70% { box-shadow: 0 0 0 12px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+/* ============================================================
+   10. 粒子动画 (AI 主题)
+   ============================================================ */
+
+@keyframes particle-float {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--particle-dx, 100px), var(--particle-dy, -200px)) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* ============================================================
+   11. 涟漪效果
+   ============================================================ */
+
+@keyframes ripple-expand {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+.ripple-wave {
+    position: absolute;
+    border-radius: var(--radius-full);
+    background: var(--color-primary);
+    opacity: 0.15;
+    transform: scale(0);
+    animation: ripple-expand 0.6s var(--ease-out);
+    pointer-events: none;
+}
+
+/* ============================================================
+   12. Toast 动画
+   ============================================================ */
+
+@keyframes toast-enter {
+    from {
+        opacity: 0;
+        transform: translateX(100%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes toast-exit {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* ============================================================
+   13. 模态框/抽屉动画
+   ============================================================ */
+
+@keyframes modal-enter {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes drawer-enter {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes overlay-enter {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ============================================================
+   14. 数字计数动画
+   ============================================================ */
+
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   15. 云朵漂浮 (手绘模式)
+   ============================================================ */
+
+@keyframes cloudDrift {
+    0% { transform: translateX(-160px); }
+    100% { transform: translateX(calc(100vw + 160px)); }
+}
+
+/* ============================================================
+   16. 焦点脉冲
+   ============================================================ */
+
+@keyframes focusPulse {
+    0% { box-shadow: var(--shadow-md); }
+    50% { box-shadow: var(--shadow-md), 0 0 0 6px var(--color-focus-ring); }
+    100% { box-shadow: var(--shadow-md), 0 0 0 4px var(--color-focus-ring); }
+}
+
+@keyframes pulseActive {
+    0%, 100% { box-shadow: 0 0 0 0 var(--color-focus-ring); }
+    50% { box-shadow: 0 0 0 10px transparent; }
+}
+
+/* ============================================================
+   17. 无障碍：减少动效
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    [data-animation] {
+        opacity: 1;
+        transform: none;
+    }
+    [data-stagger] > * {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.reduce-motion,
+.reduce-motion * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+}

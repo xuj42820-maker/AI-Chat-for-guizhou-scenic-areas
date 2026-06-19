@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 管理后台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/design-tokens.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body data-theme="explore">
+<div class="login-page">
+    <div class="login-card">
+        <div class="login-logo">🌄</div>
+        <div class="login-title">管理员登录</div>
+        {% if error %}
+        <div class="login-error">{{ error }}</div>
+        {% endif %}
+        <form method="POST" action="/admin/login">
+            <div class="form-group" style="margin-bottom:var(--space-4);">
+                <label class="form-label">用户名</label>
+                <input type="text" name="username" class="form-input" placeholder="请输入用户名" required autofocus>
+            </div>
+            <div class="form-group" style="margin-bottom:var(--space-6);">
+                <label class="form-label">密码</label>
+                <input type="password" name="password" class="form-input" placeholder="请输入密码" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">登录</button>
+        </form>
+        <div style="text-align:center;margin-top:var(--space-4);font-size:var(--text-xs);color:var(--text-muted);">
+            请联系管理员获取账号密码
+        </div>
+    </div>
+</div>
+</body>
+</html>
