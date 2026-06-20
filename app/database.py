@@ -7,7 +7,7 @@ import os
 import re
 import logging
 
-from app.db import DatabaseContext
+from app.db import DatabaseContext, DB_PATH
 
 logger = logging.getLogger(__name__)
 
