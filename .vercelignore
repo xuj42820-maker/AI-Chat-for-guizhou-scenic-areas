@@ -1,17 +1,11 @@
 static/images
-static/images/
+景区图片
 scripts
-scripts/
 docs
-docs/
 答辩
-答辩/
 tests
-tests/
 .claude
-.claude/
 .git
-.git/
 __pycache__
 *.pyc
 *.pyo
@@ -19,4 +13,6 @@ __pycache__
 *.pptx
 *.docx
 *.db
-data/*.db
+data/guizhou_travel.db
+data/guizhou_attractions.db
+项目计划
