@@ -86,6 +86,7 @@ const ChatSystem = {
         if (this.isOpen) return;
         this.isOpen = true;
         this.container?.classList.add('open');
+        document.body?.classList.add('chat-open');
         this.inputEl?.focus();
 
         // 首次打开显示欢迎消息
@@ -97,6 +98,7 @@ const ChatSystem = {
     close() {
         this.isOpen = false;
         this.container?.classList.remove('open');
+        document.body?.classList.remove('chat-open');
     },
 
     toggle() {
