@@ -110,13 +110,24 @@ class SearchIndex:
         # 额外加分：名称精确匹配、类别匹配
         query_lower = query.lower()
         boosted = []
+        exact_match = None
+        contains_match = None
         for sim, attr in scores:
             bonus = 0.0
             name = (attr.get('name') or '').lower()
             category = (attr.get('category') or '').lower()
 
-            # 名称直接包含 query 或 query 包含名称 → 强加分
-            if query_lower in name or name in query_lower:
+            # 名称完全匹配 → 大幅加分并标记为精确匹配
+            if query_lower == name:
+                bonus += 10.0
+                exact_match = (sim + bonus, attr)
+            # query 包含名称（如"黄果树瀑布门票"包含"黄果树瀑布"）→ 标记为包含匹配
+            elif name in query_lower and len(name) > 2:
+                bonus += 5.0
+                if contains_match is None:
+                    contains_match = (sim + bonus, attr)
+            # 名称直接包含 query → 强加分
+            elif query_lower in name:
                 bonus += 0.5
             # 关键词在名称/类别中
             for kw in query_tokens:
@@ -128,6 +139,13 @@ class SearchIndex:
             boosted.append((sim + bonus, attr))
 
         boosted.sort(key=lambda x: x[0], reverse=True)
+
+        # 优先级：精确匹配 > 包含匹配 > 其他
+        if exact_match:
+            return [exact_match]
+        if contains_match:
+            return [contains_match]
+
         return boosted[:top_k]
 
     def _doc_text(self, attr):
