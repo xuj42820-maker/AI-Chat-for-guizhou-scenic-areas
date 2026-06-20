@@ -16,14 +16,16 @@ from app.qa.intent import match_city
 class AnswerGenerator:
     """回答生成器"""
 
-    def __init__(self, restaurants=None, travel_tips=None):
+    def __init__(self, restaurants=None, travel_tips=None, routes=None):
         """
         Args:
             restaurants: 城市→餐厅列表 字典
             travel_tips: 旅行贴士字典
+            routes: 路线列表
         """
         self.restaurants = restaurants or {}
         self.travel_tips = travel_tips or {}
+        self.routes = routes or []
 
     def generate(self, query, intent, results):
         """
@@ -53,6 +55,7 @@ class AnswerGenerator:
             'free':      self._gen_free,
             'recommend': self._gen_recommend,
             'food':      self._gen_food,
+            'route':     self._gen_route,
             'duration':  self._gen_duration,
             'nearby':    self._gen_nearby,
             'photo':     self._gen_photo,
@@ -175,6 +178,46 @@ class AnswerGenerator:
 
         if top.get('nearby_restaurants'):
             lines += f"\n{top['name']}附近美食：{top['nearby_restaurants']}\n"
+        return lines
+
+    def _gen_route(self, results, top):
+        """生成路线推荐回答（不包含美食推荐）"""
+        import re
+        from app.db import execute_query
+
+        # 从查询中提取天数
+        query = top.get('_query', '') if isinstance(top, dict) else ''
+        days_match = re.search(r'(\d+)\s*日', query)
+        target_days = int(days_match.group(1)) if days_match else None
+
+        # 查询路线数据
+        if target_days:
+            routes = execute_query("SELECT * FROM routes WHERE duration LIKE ?", (f'%{target_days}天%',))
+        else:
+            routes = execute_query("SELECT * FROM routes")
+
+        if not routes:
+            routes = execute_query("SELECT * FROM routes LIMIT 3")
+
+        if not routes:
+            return "抱歉，暂无路线推荐信息。您可以尝试询问具体的景点信息。"
+
+        lines = f"🧭 为您推荐以下贵州旅游路线：\n\n"
+        for i, route in enumerate(routes[:3], 1):
+            lines += f"**{i}. {route['name']}**\n"
+            lines += f"   📝 {route.get('description', '')}\n"
+            lines += f"   🕐 时长：{route.get('duration', '待定')} | 💰 预算：{route.get('budget', '待定')} | 📊 难度：{route.get('difficulty', '简单')}\n"
+
+            # 显示景点列表（不包含美食推荐）
+            attractions_list = route.get('attractions_list', '')
+            if attractions_list:
+                attractions = [a.strip() for a in attractions_list.split(',') if a.strip()]
+                # 过滤掉美食相关的景点
+                attractions = [a for a in attractions if not any(food_kw in a for food_kw in ['小吃', '美食', '餐厅', '粉', '面', '酸汤'])]
+                if attractions:
+                    lines += f"   📍 景点：{' → '.join(attractions)}\n"
+            lines += "\n"
+
         return lines
 
     def _gen_duration(self, results, top):

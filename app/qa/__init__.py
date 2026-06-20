@@ -96,6 +96,17 @@ class RAGQuestionAnswer:
         results = self.search_index.search(query, top_k=5)
 
         if not results:
+            # 意图识别
+            intent = detect_intent(query)
+            # 如果是路线推荐意图，即使没有搜索结果也返回路线推荐
+            if intent == 'route':
+                top = {'_query': query}
+                answer = self.answer_generator.generate(query, intent, [top])
+                return {
+                    "answer": answer,
+                    "attractions": [],
+                    "suggestions": ["贵州有哪些免费景点？", "黄果树瀑布门票多少钱？", "西江千户苗寨怎么去？"]
+                }
             return {
                 "answer": "抱歉，没有找到相关信息。您可以尝试询问贵州的景点、门票、开放时间、交通等问题。",
                 "attractions": [],
@@ -107,11 +118,17 @@ class RAGQuestionAnswer:
         attractions = [attr for _, attr in results]
 
         # 3. 生成回答
-        answer = self.answer_generator.generate(query, intent, attractions)
+        # 对于路线推荐意图，将查询文本传递给 generator
+        if intent == 'route':
+            top = attractions[0].copy() if attractions else {}
+            top['_query'] = query
+            answer = self.answer_generator.generate(query, intent, [top])
+        else:
+            answer = self.answer_generator.generate(query, intent, attractions)
 
         return {
             "answer": answer,
-            "attractions": attractions[:3],
+            "attractions": attractions[:3] if intent != 'route' else [],
             "suggestions": self.answer_generator.generate_suggestions(query, attractions)
         }
 
