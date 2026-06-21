@@ -101,6 +101,9 @@ function renderAttractions(attractions) {
                     <span class="attraction-card-rating">⭐ ${attr.rating || '无'}</span>
                     <span class="attraction-card-price">${escapeHtml(attr.ticket_price || '免费')}</span>
                 </div>
+                <div class="attraction-card-map-link" onclick="event.preventDefault();event.stopPropagation();window.location.href='/map?attraction=${attr.id}';">
+                    📍 地图中查看
+                </div>
             </div>
         </a>`;
     }).join('');

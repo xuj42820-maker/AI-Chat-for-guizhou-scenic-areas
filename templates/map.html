@@ -1056,6 +1056,17 @@ fetch('/api/attractions/coordinates')
         initFilters();
         createMarkers(attractions);
         renderList(attractions);
+
+        // 检查URL参数，自动定位到指定景点
+        var urlParams = new URLSearchParams(window.location.search);
+        var attractionId = urlParams.get('attraction');
+        if (attractionId) {
+            var id = parseInt(attractionId);
+            // 延迟执行，确保地图和标记都已加载
+            setTimeout(function() {
+                locateAttr(id);
+            }, 500);
+        }
     })
     .catch(function(err) {
         document.getElementById('statsText').textContent = '加载失败: ' + err.message;
